@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f3e9">
+  <meta name="description" content="Private student results portal preview for Our Lady's Girls in Kakuma.">
+  <title>Student Portal | Our Lady's Girls</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="portal.js" defer></script>
+</head>
+<body class="portal-page">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="portal-header">
+    <a class="brand portal-brand" href="index.html" aria-label="Our Lady's Girls home">
+      <span class="brand-mark" aria-hidden="true">O</span>
+      <span class="brand-name">Our Lady's <small>Girls · Kakuma</small></span>
+    </a>
+    <nav class="portal-links" aria-label="School navigation">
+      <a class="portal-back" href="index.html">← School website</a>
+      <a class="portal-back" href="teacher-workspace/index.html">Teacher workspace ↗</a>
+    </nav>
+  </header>
+
+  <main class="portal-main" id="main">
+    <div class="portal-kicker">Our Lady's Girls · Kakuma, Kenya</div>
+    <h1>Student results portal</h1>
+    <div class="portal-notice" role="status">
+      <strong>Preview only</strong>
+      <span>Secure sign-in and student records are not connected yet. Do not enter real passwords or personal data here.</span>
+    </div>
+
+    <section class="portal-access" aria-labelledby="access-title">
+      <div class="portal-access-copy">
+        <p class="section-kicker">Student access</p>
+        <h2 id="access-title">Your results, in one place.</h2>
+        <p>Students will be able to view their own subject results after the school connects its verified records and secure sign-in system.</p>
+        <div class="portal-login-panel">
+          <h3>Student sign-in</h3>
+          <p>Use the student account details provided by the school once the portal is activated.</p>
+          <form class="portal-form" data-role="student">
+            <label for="student-id">Student admission number</label>
+            <input id="student-id" type="text" autocomplete="off" placeholder="Available when portal is active" disabled>
+            <label for="student-password">Password</label>
+            <input id="student-password" type="password" autocomplete="off" placeholder="Sign-in is not active" disabled>
+            <button class="button button-dark" type="submit" disabled>Sign-in coming soon</button>
+          </form>
+        </div>
+      </div>
+
+      <aside class="results-preview" aria-labelledby="results-preview-title">
+        <p class="section-kicker">Student view</p>
+        <h2 id="results-preview-title">Your learning results</h2>
+        <div class="results-format-tabs" role="tablist" aria-label="Choose curriculum results format">
+          <button class="results-format-tab" id="cbc-results-tab" type="button" role="tab" aria-selected="true" aria-controls="cbc-results-panel">CBC / CBE</button>
+          <button class="results-format-tab" id="844-results-tab" type="button" role="tab" aria-selected="false" aria-controls="844-results-panel">8-4-4 / KCSE</button>
+        </div>
+        <section class="results-format-panel" id="cbc-results-panel" role="tabpanel" aria-labelledby="cbc-results-tab">
+          <p class="results-preview-copy">CBC/CBE reports learning-area progress and achievement levels. It does not use the KCSE mean-points format.</p>
+          <div class="results-table-wrap">
+            <table class="portal-results-table cbc-results-table">
+              <caption class="visually-hidden">CBC/CBE results display: learning area, strand, assessment evidence, achievement level, and feedback.</caption>
+              <thead><tr><th scope="col">Learning area</th><th scope="col">Strand / outcome</th><th scope="col">Evidence</th><th scope="col">Achievement level</th></tr></thead>
+              <tbody><tr><td colspan="4">Competency results will appear here after secure sign-in and school approval.</td></tr></tbody>
+            </table>
+          </div>
+          <ul class="achievement-key" aria-label="Achievement level key">
+            <li><span>EE</span> Exceeding expectations</li>
+            <li><span>ME</span> Meeting expectations</li>
+            <li><span>AE</span> Approaching expectations</li>
+            <li><span>BE</span> Below expectations</li>
+          </ul>
+          <p class="privacy-note">Achievement descriptions and assessment records should follow the school's approved CBC/CBE reporting guidance.</p>
+        </section>
+        <section class="results-format-panel" id="844-results-panel" role="tabpanel" aria-labelledby="844-results-tab" hidden>
+          <p class="results-preview-copy">8-4-4 / KCSE reports subject marks, letter grades, and grade points.</p>
+          <div class="results-table-wrap">
+            <table class="portal-results-table">
+              <caption class="visually-hidden">8-4-4 / KCSE subject results display: subject, marks, grade, and points.</caption>
+              <thead><tr><th scope="col">Subject</th><th scope="col">Marks</th><th scope="col">Grade</th><th scope="col">Points</th></tr></thead>
+              <tbody><tr><td colspan="4">Private subject results will appear here after secure sign-in and school approval.</td></tr></tbody>
+            </table>
+          </div>
+          <div class="kcse-summary"><span>Mean grade</span><strong>Shown when official results are available</strong></div>
+        </section>
+        <p class="privacy-note">Results are private education records. Students should only see their own results; staff access must be role-restricted and audited.</p>
+      </aside>
+    </section>
+
+  </main>
+
+  <footer class="portal-footer">
+    <span>Our Lady's Girls · Kakuma, Turkana County</span>
+    <nav class="portal-links" aria-label="More school links">
+      <a href="index.html#admissions">School contact</a>
+      <a href="teacher-workspace/index.html">Teacher workspace</a>
+    </nav>
+  </footer>
+</body>
+</html>
