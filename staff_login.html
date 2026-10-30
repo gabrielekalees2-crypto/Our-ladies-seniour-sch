@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f3e9">
+  <title>Staff Sign-in | Our Lady's Girls</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('teacher_assets', filename='styles.css') }}">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="workspace-header">
+    <a class="brand" href="{{ url_for('home') }}" aria-label="Our Lady's Girls home">
+      <span class="brand-mark" aria-hidden="true">O</span>
+      <span class="brand-name">Our Lady's <small>Staff sign-in</small></span>
+    </a>
+    <nav aria-label="Public school links">
+      <a href="{{ url_for('home') }}">School website</a>
+      <a href="{{ url_for('student_portal') }}">Student portal</a>
+    </nav>
+  </header>
+
+  <main id="main" class="login-main">
+    <div class="eyebrow">Authorized staff · Our Lady's Girls</div>
+    <h1>Sign in to the teacher workspace.</h1>
+    <div class="notice login-preview-notice" role="note">
+      <strong>Secure staff access</strong>
+      <span>Use an account created by the school administrator. Student results are private and access is limited to authorized staff.</span>
+    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <p class="auth-error" role="alert">{{ message }}</p>
+      {% endfor %}
+    {% endwith %}
+    <form class="staff-login-form login-gate-form" method="post" action="{{ url_for('staff_login') }}" autocomplete="on">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label for="staff-username">Staff ID or school email</label>
+      <input id="staff-username" name="username" type="text" autocomplete="username" maxlength="190" required autofocus>
+      <label for="staff-password">Password</label>
+      <input id="staff-password" name="password" type="password" autocomplete="current-password" maxlength="1024" required>
+      <button class="button button-dark" type="submit">Sign in</button>
+      <p class="staff-login-status">Accounts are issued by the school administrator. Contact the school if you need access.</p>
+    </form>
+  </main>
+
+  <footer>
+    <span>Our Lady's Girls · Kakuma · Authorized staff only</span>
+    <a href="{{ url_for('student_portal') }}">Student portal</a>
+  </footer>
+</body>
+</html>

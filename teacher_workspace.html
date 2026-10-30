@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f3e9">
+  <title>Teacher Workspace | Our Lady's Girls</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('teacher_assets', filename='styles.css') }}">
+  <script src="{{ url_for('teacher_assets', filename='app.js') }}" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="workspace-header">
+    <a class="brand" href="{{ url_for('home') }}" aria-label="Our Lady's Girls home">
+      <span class="brand-mark" aria-hidden="true">O</span>
+      <span class="brand-name">Our Lady's <small>Teacher workspace</small></span>
+    </a>
+    <nav aria-label="Staff navigation">
+      <span class="staff-identity">Signed in: {{ staff_username }}</span>
+      <a href="{{ url_for('home') }}">School website</a>
+      <a href="{{ url_for('student_portal') }}">Student portal</a>
+      <form class="logout-form" method="post" action="{{ url_for('staff_logout') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="sign-out-button" type="submit">Sign out</button>
+      </form>
+    </nav>
+  </header>
+
+  <main id="main">
+    <div class="workspace-heading">
+      <div><div class="eyebrow">Authorized staff · Our Lady's Girls</div><h1>Teacher assessment tools</h1></div>
+      <p class="workspace-preview-label">School website changes are published immediately</p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <p class="editor-message editor-message-{{ category }}" role="{{ 'alert' if category == 'error' else 'status' }}">{{ message }}</p>
+      {% endfor %}
+    {% endwith %}
+
+    <section class="site-editor" aria-labelledby="school-editor-title">
+      <div class="calculator-heading">
+        <div>
+          <p class="kicker">Public school website</p>
+          <h2 id="school-editor-title">School information</h2>
+          <p>Edit the school's public profile, contact details, and calendar. Saving publishes the changes to the school website and admissions page.</p>
+        </div>
+      </div>
+      <form class="site-content-form" id="school-website-editor" method="post" action="{{ url_for('update_site_content') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label class="editor-field editor-field-wide" for="hero-title">Homepage headline
+          <textarea id="hero-title" name="hero_title" rows="2" maxlength="180" required>{{ site.hero_title }}</textarea>
+        </label>
+        <label class="editor-field editor-field-wide" for="hero-copy">Homepage introduction
+          <textarea id="hero-copy" name="hero_copy" rows="3" maxlength="500" required>{{ site.hero_copy }}</textarea>
+        </label>
+        <label class="editor-field" for="principal-name">Principal's name
+          <input id="principal-name" name="principal_name" maxlength="140" value="{{ site.principal_name }}">
+        </label>
+        <label class="editor-field" for="school-location">School location
+          <input id="school-location" name="location" maxlength="180" value="{{ site.location }}">
+        </label>
+        <label class="editor-field editor-field-wide" for="school-curriculum">Curriculum and grades
+          <textarea id="school-curriculum" name="curriculum" rows="2" maxlength="300">{{ site.curriculum }}</textarea>
+        </label>
+        <label class="editor-field" for="school-enrollment">Enrollment information
+          <input id="school-enrollment" name="enrollment" maxlength="120" value="{{ site.enrollment }}">
+        </label>
+        <label class="editor-field" for="enrollment-year">Enrollment reporting year
+          <input id="enrollment-year" name="enrollment_year" maxlength="40" value="{{ site.enrollment_year }}">
+        </label>
+        <label class="editor-field" for="school-phone">School phone
+          <input id="school-phone" name="school_phone" maxlength="80" value="{{ site.school_phone }}">
+        </label>
+        <label class="editor-field" for="school-email">School email
+          <input id="school-email" name="school_email" type="text" inputmode="email" maxlength="190" value="{{ site.school_email }}">
+        </label>
+        <label class="editor-field" for="term-dates">Term dates
+          <input id="term-dates" name="term_dates" maxlength="180" value="{{ site.term_dates }}">
+        </label>
+        <label class="editor-field" for="exam-dates">Examination dates
+          <input id="exam-dates" name="exam_dates" maxlength="180" value="{{ site.exam_dates }}">
+        </label>
+        <label class="editor-field" for="admissions-dates">Admissions and visits
+          <input id="admissions-dates" name="admissions_dates" maxlength="180" value="{{ site.admissions_dates }}">
+        </label>
+        <label class="editor-field" for="parent-meetings">Parent meetings
+          <input id="parent-meetings" name="parent_meetings" maxlength="180" value="{{ site.parent_meetings }}">
+        </label>
+        <button class="button button-dark editor-save" type="submit">Save school information</button>
+      </form>
+    </section>
+
+    <section class="site-editor" id="kcse-results" aria-labelledby="kcse-results-title">
+      <div class="calculator-heading">
+        <div>
+          <p class="kicker">Public school results</p>
+          <h2 id="kcse-results-title">Publish KCSE results</h2>
+          <p>Publish mean scores confirmed against official school records. Saving an existing year replaces that year's entry; published results appear on the public website.</p>
+        </div>
+      </div>
+      <form class="record-create-form" method="post" action="{{ url_for('save_kcse_result') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label class="editor-field" for="kcse-year">KCSE year
+          <input id="kcse-year" name="year" type="number" min="1960" max="{{ current_year }}" step="1" required>
+        </label>
+        <label class="editor-field" for="kcse-mean-score">Mean score (out of 12)
+          <input id="kcse-mean-score" name="mean_score" type="number" min="0" max="12" step="0.001" required>
+        </label>
+        <label class="editor-field" for="kcse-candidates">Candidates (optional)
+          <input id="kcse-candidates" name="candidates" type="number" min="1" max="100000" step="1">
+        </label>
+        <label class="editor-field" for="kcse-source">Source/reference (shown publicly)
+          <input id="kcse-source" name="source" maxlength="160" placeholder="For example: Official school KCSE record">
+        </label>
+        <button class="button button-dark editor-save" type="submit">Publish KCSE results</button>
+      </form>
+      <ul class="staff-record-list">
+        {% for result in kcse_results %}
+          <li>
+            <span><strong>{{ result.year }}</strong> · Mean {{ "%.3f"|format(result.mean_score) }} · {{ result.candidates if result.candidates is not none else "Candidate count not provided" }} candidates · {{ result.source }}</span>
+            <form method="post" action="{{ url_for('delete_kcse_result', year=result.year) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="text-button delete-photo-button" type="submit">Remove published result</button>
+            </form>
+          </li>
+        {% else %}
+          <li class="empty-photos">No school-published KCSE results yet. The existing secondary-source figures remain labeled on the public website.</li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section class="site-editor photo-editor" id="school-photo-editor" aria-labelledby="school-photos-title">
+      <div class="calculator-heading">
+        <div>
+          <p class="kicker">School community gallery</p>
+          <h2 id="school-photos-title">Add or remove photos</h2>
+          <p>Upload real school community photos only, with school approval and any required consent. Identify people accurately, including whether they are current students, old girls (alumnae), or staff. JPEG, PNG, and WebP images up to 5 MB are supported.</p>
+        </div>
+      </div>
+      <form class="photo-upload-form" method="post" action="{{ url_for('upload_school_photo') }}" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label class="editor-field" for="school-photo">School photo
+          <input id="school-photo" name="photo" type="file" accept="image/jpeg,image/png,image/webp" required>
+        </label>
+        <label class="editor-field" for="photo-caption">Photo caption and description
+          <input id="photo-caption" name="caption" maxlength="160" placeholder="For example: Our Lady's old girls (alumnae)" required>
+        </label>
+        <button class="button button-dark" type="submit">Add photo to website</button>
+      </form>
+      <div class="managed-photos">
+        {% for photo in photos %}
+          <article class="managed-photo">
+            <img src="{{ url_for('school_photo', photo_id=photo.id) }}" alt="{{ photo.caption }}">
+            <div>
+              <p>{{ photo.caption }}</p>
+              <form method="post" action="{{ url_for('delete_school_photo', photo_id=photo.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="text-button delete-photo-button" type="submit">Remove photo</button>
+              </form>
+            </div>
+          </article>
+        {% else %}
+          <p class="empty-photos">No additional school photos have been added yet. The public homepage features a photo of Our Lady's old girls (alumnae).</p>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="site-editor student-record-editor" id="student-records" aria-labelledby="student-records-title">
+      <div class="calculator-heading">
+        <div>
+          <p class="kicker">Private student records</p>
+          <h2 id="student-records-title">Progress, discipline, and fee accounts</h2>
+          <p>Authorized staff only. Portal-linked students and guardians can view the student's progress, school-approved discipline summaries, and fee charges and payments.</p>
+        </div>
+      </div>
+      <div class="student-record-warning" role="note">
+        <strong>Protect student privacy</strong>
+        <span>Enter accurate, necessary information only. Do not enter confidential staff notes or sensitive personal details in summaries. Share portal credentials privately and only with the student or verified guardian.</span>
+      </div>
+      <form class="record-create-form" method="post" action="{{ url_for('create_student_record') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label class="editor-field" for="new-student-name">Student name
+          <input id="new-student-name" name="student_name" maxlength="140" required>
+        </label>
+        <label class="editor-field" for="new-admission-number">Admission number
+          <input id="new-admission-number" name="admission_number" maxlength="40" required>
+        </label>
+        <button class="button button-dark" type="submit">Create student record</button>
+      </form>
+
+      {% for item in student_data %}
+        {% set record = item.record %}
+        <details class="managed-student">
+          <summary>{{ record.student_name }} <span>Admission {{ record.admission_number }} · Arrears KES {{ "{:,}".format(item.fee_balance) }}</span></summary>
+          <div class="student-record-sections">
+            <section aria-label="Add learning progress for {{ record.student_name }}">
+              <h3>Learning progress</h3>
+              <form class="student-entry-form student-progress-form" method="post" action="{{ url_for('create_progress_entry', student_id=record.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <label class="editor-field">Term <input name="term" maxlength="80" required></label>
+                <label class="editor-field">Learning area <input name="learning_area" maxlength="120" required></label>
+                <label class="editor-field">Result or achievement <input name="result" maxlength="80" required></label>
+                <label class="editor-field">Feedback <textarea name="feedback" maxlength="500" rows="2"></textarea></label>
+                <button class="button button-dark" type="submit">Add progress</button>
+              </form>
+              {% if item.progress_entries %}
+                <ul class="staff-record-list">
+                  {% for entry in item.progress_entries %}
+                    <li><strong>{{ entry.term }} · {{ entry.learning_area }} · {{ entry.result }}</strong>{% if entry.feedback %}<span>{{ entry.feedback }}</span>{% endif %}</li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </section>
+
+            <section aria-label="Add discipline summary for {{ record.student_name }}">
+              <h3>School-approved discipline summaries</h3>
+              <form class="student-entry-form student-discipline-form" method="post" action="{{ url_for('create_discipline_entry', student_id=record.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <label class="editor-field">Incident date <input name="incident_date" type="date" required></label>
+                <label class="editor-field">Summary visible to student / guardian <textarea name="summary" maxlength="500" rows="2" required></textarea></label>
+                <label class="editor-field">Follow-up / action taken <textarea name="action_taken" maxlength="500" rows="2" required></textarea></label>
+                <button class="button button-dark" type="submit">Add discipline summary</button>
+              </form>
+              {% if item.discipline_entries %}
+                <ul class="staff-record-list">
+                  {% for entry in item.discipline_entries %}
+                    <li><strong>{{ entry.incident_date.strftime("%d %b %Y") }} · {{ entry.summary }}</strong><span>Follow-up: {{ entry.action_taken }}</span></li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </section>
+
+            <section aria-label="Record fee charge or payment for {{ record.student_name }}">
+              <h3>Fee account · Current arrears KES {{ "{:,}".format(item.fee_balance) }}</h3>
+              <form class="student-entry-form student-fee-form" method="post" action="{{ url_for('create_fee_transaction', student_id=record.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <label class="editor-field">Entry type
+                  <select name="transaction_type" required><option value="charge">Fee charge</option><option value="payment">Payment received</option></select>
+                </label>
+                <label class="editor-field">Date <input name="transaction_date" type="date" required></label>
+                <label class="editor-field">Amount (KES, whole shillings) <input name="amount_kes" type="number" min="1" max="100000000" step="1" required></label>
+                <label class="editor-field">Description / payment reference <input name="description" maxlength="160" required></label>
+                <button class="button button-dark" type="submit">Record fee entry</button>
+              </form>
+              {% if item.fee_transactions %}
+                <ul class="staff-record-list">
+                  {% for transaction in item.fee_transactions %}
+                    <li><strong>{{ transaction.transaction_date.strftime("%d %b %Y") }} · {{ "Charge" if transaction.transaction_type == "charge" else "Payment" }} · KES {{ "{:,}".format(transaction.amount_kes) }}</strong><span>{{ transaction.description }}</span></li>
+                  {% endfor %}
+                </ul>
+              {% endif %}
+            </section>
+          </div>
+        </details>
+      {% else %}
+        <p class="empty-photos">No student portal records yet. Create a student record above before adding progress, discipline, or fee details.</p>
+      {% endfor %}
+    </section>
+
+    <div class="notice" role="note">
+      <strong>Data handling</strong>
+      <span>Authentication is server-verified. Assessment entries are currently calculated in this browser only and are not saved to the school database. Avoid shared devices and do not treat printouts or screenshots as official records.</span>
+    </div>
+
+    <fieldset class="student-details">
+      <legend>Student record</legend>
+      <label for="student-name">Student name</label>
+      <input id="student-name" name="student-name" type="text" autocomplete="off" maxlength="100" placeholder="Enter student name">
+      <label for="admission-number">Admission number</label>
+      <input id="admission-number" name="admission-number" type="text" autocomplete="off" maxlength="40" placeholder="Enter admission number">
+    </fieldset>
+
+    <div class="assessment-format-tabs" role="tablist" aria-label="Choose curriculum assessment format">
+      <button class="assessment-format-tab" id="cbc-tool-tab" type="button" role="tab" aria-selected="true" aria-controls="cbc-tool-panel">CBC / CBE assessment</button>
+      <button class="assessment-format-tab" id="kcse-tool-tab" type="button" role="tab" aria-selected="false" aria-controls="kcse-tool-panel">8-4-4 / KCSE marks</button>
+    </div>
+
+    <section class="cbc-tool-panel" id="cbc-tool-panel" role="tabpanel" aria-labelledby="cbc-tool-tab">
+      <div class="calculator">
+        <div class="calculator-heading">
+          <div>
+            <p class="kicker">Competency-based assessment · Local calculation</p>
+            <h2>CBC / CBE learning progress</h2>
+            <p>Record learning-area evidence and an achievement level for each strand or outcome. CBC results do not use KCSE points or mean grades.</p>
+          </div>
+          <div class="calculator-actions">
+            <button class="button button-outline" id="add-cbc-area" type="button">+ Add learning area</button>
+            <button class="button button-dark" id="print-cbc-results" type="button">Print CBC summary</button>
+          </div>
+        </div>
+
+        <div class="cbc-guidance" role="note">
+          <strong>Confirm the school's curriculum</strong>
+          <span>The learning areas below are editable suggestions only. Use the subjects, strands, outcomes, and reporting guidance approved for the learner's grade and pathway.</span>
+        </div>
+
+        <div class="cbc-summary" aria-live="polite" aria-atomic="true">
+          <div><span>Areas assessed</span><strong id="cbc-area-count">0</strong></div>
+          <div><span>EE</span><strong id="cbc-ee-count">0</strong></div>
+          <div><span>ME</span><strong id="cbc-me-count">0</strong></div>
+          <div><span>AE</span><strong id="cbc-ae-count">0</strong></div>
+          <div><span>BE</span><strong id="cbc-be-count">0</strong></div>
+        </div>
+
+        <div class="cbc-table-wrap">
+          <table class="cbc-table">
+            <caption class="visually-hidden">Record CBC learning-area strands, assessment evidence, teacher feedback, and achievement level.</caption>
+            <thead><tr><th scope="col">Learning area / subject</th><th scope="col">Strand / outcome</th><th scope="col">Evidence / feedback</th><th scope="col">Achievement level</th><th scope="col"><span class="visually-hidden">Remove learning area</span></th></tr></thead>
+            <tbody id="cbc-rows"></tbody>
+          </table>
+        </div>
+        <div class="calculator-footer">
+          <p id="cbc-message" class="calculator-message" role="status" aria-live="polite">Entries are not saved. Reloading clears this page.</p>
+          <button class="text-button" id="clear-cbc" type="button">Clear CBC entries</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="calculator kcse-tool-panel" id="kcse-tool-panel" role="tabpanel" aria-labelledby="kcse-tool-tab" hidden>
+      <div class="calculator-heading">
+        <div>
+          <p class="kicker">Assessment support · Local calculation</p>
+          <h2 id="calculator-title">Marks &amp; grade calculator</h2>
+          <p>Enter marks for each subject to calculate percentages, grades, grade points, and an indicative mean.</p>
+        </div>
+        <div class="calculator-actions">
+          <button class="button button-outline" id="add-subject" type="button">+ Add subject</button>
+          <button class="button button-dark" id="print-results" type="button">Print summary</button>
+        </div>
+      </div>
+
+      <div class="calculator-warning" role="note">
+        <strong>Check the school grading scheme</strong>
+        <span>Grade points use the commonly published KCSE scale: A=12 down to E=1. Default percentage boundaries below are examples, not official KCSE subject cutoffs. Edit them to match the exam. Mean grade is an estimate; confirm the school's approved aggregation rules.</span>
+      </div>
+
+      <div class="calculator-summary" aria-live="polite" aria-atomic="true">
+        <div><span>Subjects entered</span><strong id="subjects-count">0</strong></div>
+        <div><span>Mean points</span><strong id="mean-points">-</strong></div>
+        <div><span>Indicative mean grade</span><strong id="mean-grade">-</strong></div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="marks-table">
+          <caption class="visually-hidden">Enter marks and maximum marks for each subject.</caption>
+          <thead><tr><th scope="col">Subject</th><th scope="col">Marks earned</th><th scope="col">Out of</th><th scope="col">Percent</th><th scope="col">Grade</th><th scope="col">Points</th><th scope="col"><span class="visually-hidden">Remove subject</span></th></tr></thead>
+          <tbody id="marks-rows"></tbody>
+        </table>
+      </div>
+
+      <details class="grade-boundaries">
+        <summary>Edit mark-to-grade boundaries</summary>
+        <p>Set the minimum percentage for each grade, from highest to lowest. These example values stay in this page only and reset when reloaded.</p>
+        <div class="boundary-grid" id="boundary-grid"></div>
+      </details>
+      <div class="calculator-footer">
+        <p id="calculator-message" class="calculator-message" role="status" aria-live="polite">Entries are not saved. Reloading clears this page.</p>
+        <button class="text-button" id="clear-marks" type="button">Clear all marks</button>
+      </div>
+    </section>
+
+    <section class="privacy" aria-labelledby="privacy-title">
+      <p class="kicker">Staff use</p>
+      <h2 id="privacy-title">Keep student records private.</h2>
+      <p>Do not enter real student records in this local-only calculator. A live records system needs protected storage, role-based access, approved workflows, backups, and audit logs.</p>
+    </section>
+  </main>
+
+  <footer>
+    <span>Teacher workspace · Our Lady's Girls · Kakuma</span>
+    <a href="{{ url_for('student_portal') }}">Student portal</a>
+  </footer>
+</body>
+</html>

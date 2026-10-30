@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f3e9">
+  <meta name="description" content="Private student progress, discipline, and fee information for Our Lady's Girls.">
+  <title>Student Portal | Our Lady's Girls</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('school_styles') }}">
+  <script src="{{ url_for('student_portal_script') }}" defer></script>
+</head>
+<body class="portal-page">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="portal-header">
+    <a class="brand portal-brand" href="{{ url_for('home') }}" aria-label="Our Lady's Girls home">
+      <span class="brand-mark" aria-hidden="true">O</span>
+      <span class="brand-name">Our Lady's <small>Girls · Kakuma</small></span>
+    </a>
+    <nav class="portal-links" aria-label="School navigation">
+      <a class="portal-back" href="{{ url_for('home') }}">← School website</a>
+      {% if student %}
+        <form method="post" action="{{ url_for('student_logout') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="portal-logout" type="submit">Sign out</button>
+        </form>
+      {% endif %}
+    </nav>
+  </header>
+
+  <main class="portal-main" id="main">
+    {% if student %}
+      <p class="portal-kicker">Private student record · {{ "Student" if portal_role == "student" else "Authorized parent / guardian" }} view</p>
+      <h1>{{ student.student_name }}</h1>
+      <p class="portal-admission">Admission number: {{ student.admission_number }}</p>
+      <div class="portal-notice" role="note">
+        <strong>Private record</strong>
+        <span>This page shows information for this student only. Contact the school office if any entry is incorrect or needs clarification.</span>
+      </div>
+
+      <section class="portal-record-card" aria-labelledby="progress-title">
+        <div class="portal-record-heading">
+          <div><p class="section-kicker">School progress</p><h2 id="progress-title">Learning progress</h2></div>
+        </div>
+        {% if progress_entries %}
+          <div class="portal-table-wrap">
+            <table class="portal-private-table">
+              <caption class="visually-hidden">Learning progress for {{ student.student_name }}</caption>
+              <thead><tr><th scope="col">Term</th><th scope="col">Learning area</th><th scope="col">Result</th><th scope="col">Feedback</th></tr></thead>
+              <tbody>
+                {% for entry in progress_entries %}
+                  <tr><td>{{ entry.term }}</td><td>{{ entry.learning_area }}</td><td>{{ entry.result }}</td><td>{{ entry.feedback or "—" }}</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p class="portal-empty">Progress updates have not been added yet. Please contact the school for the latest report.</p>
+        {% endif %}
+      </section>
+
+      {% if portal_role == "student" %}
+        <section class="portal-record-card tutor-card" aria-labelledby="tutor-title">
+          <div class="portal-record-heading">
+            <div><p class="section-kicker">Study support</p><h2 id="tutor-title">Ask the study tutor</h2></div>
+          </div>
+          <p class="portal-section-intro">Get help understanding a topic, practising a skill, or working through a problem one step at a time.</p>
+          <div class="tutor-messages" id="tutor-messages" role="log" aria-live="polite" aria-relevant="additions">
+            <p class="tutor-message tutor-message-assistant">Hello! What are you learning today? I can explain ideas and guide you through practice problems.</p>
+          </div>
+          <form class="tutor-form" id="tutor-form" action="{{ url_for('student_tutor') }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label for="tutor-question">Your question</label>
+            <textarea id="tutor-question" name="question" rows="3" maxlength="2000" required placeholder="For example: Can you explain fractions with a simple example?"></textarea>
+            <button class="button button-dark" type="submit">Ask the tutor</button>
+            <p class="tutor-privacy">Your question is sent to OpenAI to generate a reply. Do not include your name, account details, or other sensitive personal information. AI answers can be mistaken, so check important schoolwork with your teacher.</p>
+          </form>
+        </section>
+      {% endif %}
+
+      <section class="portal-record-card" aria-labelledby="discipline-title">
+        <div class="portal-record-heading">
+          <div><p class="section-kicker">Student support</p><h2 id="discipline-title">Discipline and follow-up</h2></div>
+        </div>
+        <p class="portal-section-intro">This section shows school-approved incident summaries and follow-up actions. Confidential staff notes are not displayed.</p>
+        {% if discipline_entries %}
+          <div class="portal-table-wrap">
+            <table class="portal-private-table">
+              <caption class="visually-hidden">Discipline summaries and follow-up actions for {{ student.student_name }}</caption>
+              <thead><tr><th scope="col">Date</th><th scope="col">Summary</th><th scope="col">Follow-up / action</th></tr></thead>
+              <tbody>
+                {% for entry in discipline_entries %}
+                  <tr><td>{{ entry.incident_date.strftime("%d %b %Y") }}</td><td>{{ entry.summary }}</td><td>{{ entry.action_taken }}</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p class="portal-empty">There are no discipline summaries recorded for this student.</p>
+        {% endif %}
+      </section>
+
+      <section class="portal-record-card" aria-labelledby="fees-title">
+        <div class="portal-record-heading">
+          <div><p class="section-kicker">Private fee account</p><h2 id="fees-title">Fee balance and payments</h2></div>
+          <p class="portal-balance">Outstanding balance <strong>KES {{ "{:,}".format(fee_balance) }}</strong></p>
+        </div>
+        {% if fee_transactions %}
+          <div class="portal-table-wrap">
+            <table class="portal-private-table">
+              <caption class="visually-hidden">Fee charges and payments for {{ student.student_name }}</caption>
+              <thead><tr><th scope="col">Date</th><th scope="col">Entry</th><th scope="col">Description / reference</th><th scope="col">Amount</th></tr></thead>
+              <tbody>
+                {% for transaction in fee_transactions %}
+                  <tr>
+                    <td>{{ transaction.transaction_date.strftime("%d %b %Y") }}</td>
+                    <td>{{ "Charge" if transaction.transaction_type == "charge" else "Payment" }}</td>
+                    <td>{{ transaction.description }}</td>
+                    <td>KES {{ "{:,}".format(transaction.amount_kes) }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p class="portal-empty">No fee charges or payments have been recorded.</p>
+        {% endif %}
+        <p class="portal-private-help">For payment questions or corrections, please contact the school office and keep official payment receipts.</p>
+      </section>
+    {% else %}
+      <p class="portal-kicker">Our Lady's Girls · Kakuma, Kenya</p>
+      <h1>Student results portal</h1>
+      <div class="portal-notice" role="note">
+        <strong>Private sign-in</strong>
+        <span>Student progress, discipline information, and fee accounts are private. Sign in using an account the school has linked to the student record.</span>
+      </div>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <p class="portal-auth-message portal-auth-{{ category }}" role="alert">{{ message }}</p>
+        {% endfor %}
+      {% endwith %}
+      <section class="portal-login-card" aria-labelledby="portal-login-title">
+        <p class="section-kicker">Student or authorized parent / guardian</p>
+        <h2 id="portal-login-title">Sign in to view a student record.</h2>
+        <p>For privacy, each account can only view the student record assigned by the school. Contact the school office to request an account or help with access.</p>
+        <form class="portal-login-form" method="post" action="{{ url_for('student_login') }}" autocomplete="on">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <label for="portal-username">Portal ID or email</label>
+          <input id="portal-username" name="username" type="text" maxlength="190" autocomplete="username" required>
+          <label for="portal-password">Password</label>
+          <input id="portal-password" name="password" type="password" maxlength="1024" autocomplete="current-password" required>
+          <button class="button button-dark" type="submit">Sign in securely</button>
+        </form>
+      </section>
+    {% endif %}
+  </main>
+
+  <footer class="portal-footer">
+    <span>Our Lady's Girls · Kakuma, Turkana County</span>
+    <nav class="portal-links" aria-label="More school links">
+      <a href="{{ url_for('home') }}">School website</a>
+      <a href="{{ url_for('admissions') }}">Admissions</a>
+    </nav>
+  </footer>
+</body>
+</html>
